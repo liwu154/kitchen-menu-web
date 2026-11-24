@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="今天吃啥">
+<meta name="theme-color" content="#ff7043">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon-192.png">
+<title>今天吃啥 · 家庭点菜板</title>
+<!-- 分享预览（微信/QQ/iMessage 等抓取这些标签） -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="今天吃啥">
+<meta property="og:title" content="今天吃啥 · 家庭点菜板">
+<meta property="og:description" content="家人点菜、随机抽菜、宴请点单，不知道吃什么就来摇一摇">
+<meta property="og:image" content="https://a0cb122210cbdfc07.app.workbuddy.host/share-cover.jpg?sharecode=OSJZ6LNHLZ">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
+<meta property="og:url" content="https://a0cb122210cbdfc07.app.workbuddy.host/?sharecode=OSJZ6LNHLZ">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://a0cb122210cbdfc07.app.workbuddy.host/share-cover.jpg?sharecode=OSJZ6LNHLZ">
+<style>
+  :root{
+    --bg:#fff7ef; --card:#ffffff; --ink:#3d2c1e; --sub:#9a8570;
+    --accent:#ff7043; --accent2:#ffb74d; --ok:#4caf7d; --line:#f0e2d2;
+    --shadow:0 4px 16px rgba(180,120,60,.12);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);padding-bottom:76px}
+  header{padding:18px 16px 8px;text-align:center;position:relative}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;font-size:13px;color:var(--sub)}
+  .admin-btn{position:absolute;top:16px;right:14px;width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:17px;cursor:pointer;line-height:1}
+  .tabs{display:flex;gap:8px;padding:10px 14px 4px}
+  .tab{flex:1;text-align:center;padding:10px 0;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:14px;color:var(--sub);cursor:pointer;user-select:none}
+  .tab.on{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;box-shadow:var(--shadow)}
+  .page{display:none;padding:14px}
+  .page.on{display:block}
+  .card{background:var(--card);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px;border:1px solid var(--line)}
+  .card h3{margin:0 0 10px;font-size:15px}
+
+  #luckyEmoji{font-size:64px;line-height:1;margin:6px 0}
+  #luckyName{font-size:26px;font-weight:700;min-height:36px}
+  #luckyBtn{width:100%;padding:16px;border:none;border-radius:16px;font-size:17px;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+  #luckyBtn:active{transform:scale(.97)}
+  .roll-tag{display:inline-block;font-size:12px;color:var(--sub);margin-left:8px}
+
+  .sum-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .sum-row:last-child{border-bottom:none}
+  .sum-left{display:flex;align-items:center;gap:10px;font-size:15px}
+  .sum-left .em{font-size:24px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{background:#fff1e6;color:#c2571d;font-size:12px;padding:3px 10px;border-radius:999px}
+  .empty{text-align:center;color:var(--sub);font-size:14px;padding:18px 0}
+
+  .who-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .who-bar label{font-size:14px;color:var(--sub)}
+  .who{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer}
+  .who.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .cat-title{font-size:14px;color:var(--ink);margin:16px 2px 8px;font-weight:700}
+  .cat-title .cnt{font-size:12px;color:var(--sub);font-weight:400}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media(min-width:560px){.grid{grid-template-columns:repeat(4,1fr)}}
+  .dish{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px;text-align:center;cursor:pointer;transition:.15s;overflow:hidden}
+  .dish .pic{width:100%;aspect-ratio:4/3;border-radius:12px;object-fit:cover;background:#fdf3e7}
+  .dish .pic-wrap{width:100%;aspect-ratio:4/3;border-radius:12px;background:#fdf3e7;display:flex;align-items:center;justify-content:center}
+  .dish .pic-wrap .em{font-size:36px}
+  .dish .nm{font-size:15px;font-weight:600;margin-top:8px}
+  .dish .ig{font-size:11px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dish.picked{border-color:var(--ok);background:#effaf3}
+  .dish.picked::after{content:"✓ 已点";position:absolute;top:8px;right:8px;background:var(--ok);color:#fff;font-size:10px;padding:2px 8px;border-radius:999px;z-index:2}
+  .dish .my-badge{position:absolute;bottom:8px;left:8px;font-size:10px;color:#c2571d;background:#fff1e6;padding:2px 8px;border-radius:999px;z-index:2}
+
+  .mask{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:.25s;z-index:50}
+  .mask.show{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;transform:translateY(105%);transition:.28s;z-index:51;max-height:86vh;overflow-y:auto;padding-bottom:24px}
+  .sheet.show{transform:translateY(0)}
+  .sheet .grab{width:44px;height:5px;border-radius:99px;background:#e6d5c0;margin:10px auto 0}
+  .sheet .hero{position:relative;width:100%;height:220px;background:#fdf3e7;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .sheet .hero img{width:100%;height:100%;object-fit:cover}
+  .sheet .hero .em{font-size:80px}
+  .sheet .close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:99px;border:none;background:rgba(0,0,0,.35);color:#fff;font-size:16px;cursor:pointer;z-index:5}
+  .sheet .body{padding:16px}
+  .sheet h2{margin:0;font-size:22px}
+  .sheet .meta{color:var(--sub);font-size:13px;margin-top:4px}
+  .ig-title{font-size:13px;color:var(--sub);margin:16px 0 8px;font-weight:600}
+  .ig-chip{display:inline-block;background:#fff1e6;color:#c2571d;font-size:14px;padding:6px 14px;border-radius:999px;margin:0 6px 6px 0}
+  .sheet .want{margin-top:14px;font-size:13px;color:var(--sub)}
+  #orderBtn{width:100%;margin-top:10px;padding:15px;border:none;border-radius:16px;font-size:17px;font-weight:700;color:#fff;cursor:pointer;background:var(--accent)}
+  #orderBtn.on{background:var(--ok)}
+  #orderBtn:active{transform:scale(.98)}
+  #orderBtn:disabled{background:#c9b7a2}
+
+  .form-row{display:flex;gap:8px;margin-bottom:10px}
+  .form-row input,.form-row select{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fffdf9;color:var(--ink)}
+  .form-row input.emoji-in{flex:0 0 64px;text-align:center;font-size:20px}
+  .btn{border:none;border-radius:12px;padding:11px 18px;font-size:15px;font-weight:600;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--sub)}
+  .btn.small{padding:7px 12px;font-size:13px}
+  .btn:active{transform:scale(.97)}
+  .img-pick{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .img-thumb{width:72px;height:56px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fdf3e7;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--sub);flex-shrink:0}
+  .mg-row{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px dashed var(--line)}
+  .mg-row:last-child{border-bottom:none}
+  .mg-thumb{width:56px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0}
+  .mg-row .em{font-size:26px}
+  .mg-row .info{flex:1;min-width:0}
+  .mg-row .nm{font-size:15px;font-weight:600}
+  .mg-row .meta{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .del{background:none;border:none;color:#e57373;font-size:13px;cursor:pointer;padding:6px}
+  .edit{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:6px}
+  footer{text-align:center;font-size:11px;color:#c9b7a2;padding:6px 0 10px}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(61,44,30,.92);color:#fff;padding:10px 20px;border-radius:999px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:99;max-width:80vw}
+  .toast.show{opacity:1}
+  #fileInput{display:none}
+  .wish-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+  .wish-row:last-child{border-bottom:none}
+  .party-card{border:1px solid #ffd8a8;background:#fff8ee}
+  .party-link{word-break:break-all;font-size:12px;background:#fff;border:1px dashed var(--accent);border-radius:10px;padding:8px;color:#c2571d}
+  .checkbox-list{max-height:180px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px}
+  .checkbox-list label{display:flex;align-items:center;gap:8px;font-size:14px;padding:5px 0}
+  .expired{text-align:center;padding:60px 24px}
+  .expired .em{font-size:60px}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="mainTitle">🍳 今天吃啥</h1>
+  <p id="subTitle">家庭点菜板 · 点开菜看图片和食材</p>
+  <button class="admin-btn" id="adminBtn" title="主人管理">🔐</button>
+</header>
+
+<div class="tabs" id="tabsBar">
+  <div class="tab on" data-p="p-today">🎲 随机抽</div>
+  <div class="tab" data-p="p-order">🥢 点菜</div>
+  <div class="tab" id="tabManage" data-p="p-manage" style="display:none">📖 菜单库</div>
+</div>
+
+<!-- 随机抽 -->
+<div class="page on" id="p-today">
+  <div class="card" style="text-align:center">
+    <div id="luckyEmoji">🍽️</div>
+    <div id="luckyName">今天就吃它！</div>
+    <button id="luckyBtn" style="margin-top:14px">🎲 抽一个</button>
+    <div style="margin-top:12px"><span id="luckyScope" style="display:inline-block;font-size:12px;color:#c2571d;background:#fff1e6;padding:6px 12px;border-radius:999px;cursor:pointer"></span></div>
+    <div style="margin-top:6px;font-size:12px;color:var(--sub)" id="luckyRange"></div>
+  </div>
+  <div class="card">
+    <h3>📋 今日大家想吃的</h3>
+    <div id="summary"></div>
+  </div>
+</div>
+
+<!-- 点菜 -->
+<div class="page" id="p-order">
+  <div class="who-bar">
+    <label>我是：</label>
+    <div id="whoList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    <button class="btn ghost small" id="addWhoBtn">+ 添加家人</button>
+  </div>
+  <div id="pickMeHint" style="display:none;font-size:12px;color:#c2571d;background:#fff1e6;border-radius:10px;padding:8px 12px;margin-bottom:12px">👆 先选一下「我是谁」，点菜会带上你的名字——选一次就永久记住，下次直接点菜</div>
+  <div id="dishGrid"></div>
+  <div style="text-align:center;color:var(--sub);font-size:12px;margin-top:8px">点一下菜打开详情，像在餐厅看菜单一样</div>
+  <div class="card" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 style="margin:0">🕯️ 愿望墙 · 想吃但菜单里没有的</h3>
+      <button class="btn ghost small" id="wishBtn">许个愿</button>
+    </div>
+    <div id="wishList" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- 菜单库（仅主人） -->
+<div class="page" id="p-manage">
+  <div class="card">
+    <div style="font-weight:700;font-size:15px;margin-bottom:10px" id="formTitle">➕ 添加新菜</div>
+    <div class="img-pick">
+      <div class="img-thumb" id="imgThumb">📷</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn ghost small" id="pickImgBtn">上传菜品图片</button>
+        <button class="btn ghost small" id="clearImgBtn" style="display:none">移除图片</button>
+        <div style="font-size:11px;color:var(--sub)">自动压缩 · 实拍图更像餐厅菜单</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+    <div class="form-row">
+      <input id="fEmoji" class="emoji-in" placeholder="🥘" maxlength="4">
+      <input id="fName" placeholder="菜名，如 糖醋排骨">
+    </div>
+    <div class="form-row">
+      <select id="fProtein"></select>
+      <input id="fNote" placeholder="备注（选填）">
+    </div>
+    <div class="form-row">
+      <input id="fIngredients" placeholder="食材，用顿号隔开：土豆、牛肉、洋葱">
+    </div>
+    <div class="form-row">
+      <button class="btn primary" style="flex:1" id="addDishBtn">加入菜单</button>
+      <button class="btn ghost" id="cancelEditBtn" style="display:none">取消编辑</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>💡 愿望清单（家人想吃的新菜）</h3>
+    <div id="adminWishes"></div>
+  </div>
+
+  <div class="card party-card">
+    <h3>🎉 宴请点单</h3>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px">生成一条临时链接发给客人：客人只能看到本次宴请菜单并点单，看不到你的日常菜单；到期或作废后链接自动失效。</div>
+    <div id="partyList"></div>
+    <div style="border-top:1px dashed var(--line);margin:12px 0;padding-top:12px;font-weight:600;font-size:14px">发起新宴请</div>
+    <div class="form-row">
+      <input id="pName" placeholder="宴请名称，如 周六家宴">
+      <select id="pDays"><option value="1">1天</option><option value="3" selected>3天</option><option value="7">7天</option></select>
+    </div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:6px">勾选本次宴请提供的菜（不勾=全部菜品）：</div>
+    <div class="checkbox-list" id="partyDishList"></div>
+    <button class="btn primary" style="width:100%" id="createPartyBtn">生成宴请链接</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 style="margin:0">🗑️ 其他</h3>
+      <button class="btn ghost small" id="chpassBtn">修改管理密码</button>
+    </div>
+    <button class="btn ghost" style="width:100%;margin-top:8px" id="resetBtn">清空今天的点菜</button>
+  </div>
+</div>
+
+<!-- 菜品详情弹层 -->
+<div class="mask" id="mask"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <button class="close" id="sheetClose">✕</button>
+  <div class="hero" id="sheetHero"><span class="em">🍽️</span></div>
+  <div class="body">
+    <h2 id="sheetName">菜名</h2>
+    <div class="meta" id="sheetMeta"></div>
+    <div id="sheetIgWrap">
+      <div class="ig-title">🧺 这道菜用到的食材</div>
+      <div id="sheetIgChips"></div>
+    </div>
+    <div class="want" id="sheetWant"></div>
+    <div id="sheetWho" style="display:none"></div>
+    <input id="orderNote" placeholder="忌口/备注（选填，如 不吃辣、少盐）" style="width:100%;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;font-size:14px;background:#fffdf9;color:var(--ink)">
+    <button id="orderBtn">🥢 我想吃</button>
+  </div>
+</div>
+
+<footer id="footNote">数据保存在这台服务上 · 主人可管理菜单</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+// API 基址：网页托管在 GitHub Pages 等静态平台时，接口指向阿里云函数计算
+const API_BASE = location.hostname.indexOf("fcapp.run") >= 0 ? "" : "https://kitchen-menu.agmbvnrbkt.cn-hangzhou.fcapp.run";
+const PROTEINS = ["猪肉","牛肉","鸡肉","鱼虾","蔬菜","凉菜","主食","汤品","其他"];
+const PROTEIN_EMOJI = {"猪肉":"🐷","牛肉":"🐄","鸡肉":"🐔","鱼虾":"🐟","蔬菜":"🥬","凉菜":"🥗","主食":"🍚","汤品":"🍲","其他":"🍽️"};
+let state = {dishes:[],users:[],orders:{},wishes:[]};
+let mode = "daily";            // daily | party
+let partyToken = "";
+let partyInfo = null;
+function getSavedMe(){
+  let v = localStorage.getItem("km_me");
+  if(!v){
+    const m = document.cookie.match(/(?:^|;\s*)km_me=([^;]+)/);
+    if(m) v = decodeURIComponent(m[1]);
+  }
+  return v || "";
+}
+function setSavedMe(v){
+  try{ localStorage.setItem("km_me", v); }catch(e){}
+  document.cookie = "km_me="+encodeURIComponent(v)+";max-age=31536000;path=/";
+}
+let me = getSavedMe();
+let adminPass = localStorage.getItem("km_admin_pass") || "";
+let isAdmin = false;
+let editingId = null, formImage = "";
+let sheetDishId = null;
+
+const $ = s => document.querySelector(s);
+const todayKey = () => { const d=new Date(), p=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); };
+const emojiFallback = ["🍲","🥘","🍚","🍜","🐟","🥗","🍤","🍳","🥟","🍛"];
+function emojiOf(d){ return d.emoji || emojiFallback[d.name.length % emojiFallback.length]; }
+function imgSrc(d){ return d.image ? (API_BASE+"/"+d.image) : ""; }
+function dishById(id){ return state.dishes.find(x=>x.id===id); }
+function igList(d){ return (d.ingredients||"").split(/[、,，;；\s]+/).filter(Boolean); }
+function orderRecords(){ return mode==="daily" ? (state.orders[todayKey()]||[]) : (partyInfo ? partyInfo.orders : []); }
+function pickedUsers(id){ return orderRecords().filter(o=>o.dishId===id).map(o=>o.user); }
+function usersWithNotes(id){ return orderRecords().filter(o=>o.dishId===id); }
+
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* ================= 宴请模式 ================= */
+async function initParty(){
+  partyToken = new URLSearchParams(location.search).get("party") || "";
+  if(!partyToken) return false;
+  mode = "party";
+  $("#tabsBar").style.display = "none";
+  $("#adminBtn").style.display = "none";
+  $("#mainTitle").textContent = "🎉 家庭宴请";
+  $("#subTitle").textContent = "欢迎光临 · 请挑你爱吃的";
+  $("#footNote").textContent = "此链接仅在宴请期间有效";
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll("#p-today,#p-manage").forEach(x=>x.style.display="none");
+  const po=$("#p-order"); po.classList.add("on");
+  // 宴请身份：自由称呼
+  const saved = localStorage.getItem("km_party_me_"+partyToken) || "";
+  $(".who-bar").innerHTML = `<label>你的称呼：</label>
+    <input id="partyMe" placeholder="如 张叔叔 / 小美" value="${saved}" style="flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:15px">
+    <button class="btn ghost small" id="partyMeBtn">保存</button>`;
+  $("#partyMeBtn").onclick=()=>{
+    const v=$("#partyMe").value.trim();
+    if(!v){ toast("先写下你的称呼，方便厨房认单"); return; }
+    localStorage.setItem("km_party_me_"+partyToken,v);
+    me=v; loadParty(); toast("称呼已保存 ✓");
+  };
+  me = saved;
+  await loadParty();
+  return true;
+}
+async function loadParty(){
+  try{
+    const r = await fetch(API_BASE+"/api/party/"+partyToken);
+    if(!r.ok){
+      const j = await r.json().catch(()=>({detail:"链接无效"}));
+      $(".who-bar").style.display="none";
+      $("#dishGrid").innerHTML = `<div class="expired"><div class="em">🔒</div>
+        <div style="font-size:18px;font-weight:700;margin:12px 0">${j.detail||"宴请链接无效"}</div>
+        <div style="color:var(--sub);font-size:13px">链接可能已到期或被主人结束<br>如需点餐请联系主人重新获取</div></div>`;
+      return;
+    }
+    partyInfo = await r.json();
+    state.dishes = partyInfo.dishes;
+    renderPartyMe(); renderGrid(); renderPartySummary();
+  }catch(e){
+    toast("网络异常，稍后再试");
+  }
+}
+function renderPartyMe(){
+  const bar=$(".who-bar");
+  if(!me){
+    bar.style.display="";
+  }
+}
+function renderPartySummary(){
+  const mine = orderRecords().filter(o=>o.user===me);
+  let el=$("#partySummary");
+  if(!el){
+    el=document.createElement("div"); el.className="card"; el.id="partySummary";
+    el.style.marginTop="14px";
+    $("#p-order").appendChild(el);
+  }
+  if(!me){ el.innerHTML=`<h3>🧾 你还没留称呼</h3><div class="empty">在上方写下称呼后就可以点菜啦</div>`; return; }
+  const rows = mine.map(o=>{ const d=dishById(o.dishId); return d?`<div class="sum-row"><div class="sum-left"><span class="em">${emojiOf(d)}</span><span>${d.name}${o.note?`<span class="chip" style="margin-left:6px">⚠️${o.note}</span>`:""}</span></div></div>`:""; }).join("");
+  el.innerHTML = `<h3>🧾 ${me} 已点的菜（${mine.length}）</h3>${rows||`<div class="empty">还没点，点上面菜单里爱吃的吧</div>`}<div style="font-size:12px;color:var(--sub);margin-top:8px">提交后厨房会统一看到大家的点单 ✓</div>`;
+}
+
+/* ================= 通用加载 ================= */
+async function load(){
+  if(mode==="party") return loadParty();
+  let r;
+  try{
+    r = await fetch(API_BASE+"/api/state");
+  }catch(e){
+    let banner=document.getElementById("apiBanner");
+    if(!banner){
+      banner=document.createElement("div");
+      banner.id="apiBanner";
+      banner.style.cssText="margin:10px 14px;padding:12px 14px;border-radius:14px;background:#fff3e0;border:1px solid #ffcc80;color:#a35c00;font-size:13px;line-height:1.6";
+      banner.innerHTML="⚠️ 当前页面是<b>静态预览</b>，点菜/上传等功能不可用。<br>请在浏览器访问服务地址使用。";
+      document.querySelector(".tabs").after(banner);
+    }
+    return;
+  }
+  state = await r.json();
+  if(!state.users.includes(me)) me = "";
+  renderToday(); renderWho(); renderGrid(); renderWishes();
+  if(isAdmin && $("#p-manage").classList.contains("on")) renderAdmin();
+  if(sheetDishId){ const d=dishById(sheetDishId); if(d) fillSheet(d); }
+}
+async function loadAdminState(){
+  const r = await fetch(API_BASE+"/api/admin/state",{headers:{"X-Admin-Pass":adminPass}});
+  if(r.status===403){ logoutAdmin(); return false; }
+  const j = await r.json();
+  state.dishes=j.dishes; state.users=j.users; state.orders=j.orders; state.wishes=j.wishes;
+  adminData = j;
+  return true;
+}
+
+/* ================= 随机抽（只抽荤菜：猪/牛/鸡/鱼虾） ================= */
+const MEAT = ["猪肉","牛肉","鸡肉","鱼虾"];
+let luckyScope = localStorage.getItem("km_lucky_scope") || "meat";  // meat | all
+function luckyPool(){
+  const meat = state.dishes.filter(d=>MEAT.includes(d.protein||"其他"));
+  if(luckyScope==="meat" && meat.length) return meat;
+  return state.dishes;
+}
+function renderLuckyScope(){
+  const meat = state.dishes.filter(d=>MEAT.includes(d.protein||"其他"));
+  const el=$("#luckyScope");
+  if(!state.dishes.length){ el.style.display="none"; return; }
+  el.style.display="";
+  if(luckyScope==="meat" && meat.length){
+    el.textContent = `🎯 范围：荤菜（猪·牛·鸡·鱼虾 ${meat.length} 道）· 点此换全部`;
+  }else if(luckyScope==="meat"){
+    el.textContent = `🎯 范围：全部菜品（暂时没有荤菜）`;
+  }else{
+    el.textContent = `🎯 范围：全部 ${state.dishes.length} 道菜 · 点此只抽荤菜`;
+  }
+}
+$("#luckyScope").onclick=()=>{
+  luckyScope = luckyScope==="meat" ? "all" : "meat";
+  localStorage.setItem("km_lucky_scope", luckyScope);
+  renderLuckyScope();
+  $("#luckyRange").textContent = `本次从 ${luckyPool().length} 道菜中抽取`;
+};
+
+let rolling=false;
+$("#luckyBtn").onclick = ()=>{
+  const pool = luckyPool();
+  if(rolling || !pool.length) return;
+  rolling=true;
+  const n=pool.length;
+  let ticks=0;
+  const timer=setInterval(()=>{
+    const d=pool[Math.floor(Math.random()*n)];
+    $("#luckyEmoji").textContent=emojiOf(d);
+    $("#luckyName").textContent=d.name;
+    ticks++;
+    if(ticks>=Math.min(18, 8+n)){ clearInterval(timer);
+      rolling=false;
+      const pick=pool[Math.floor(Math.random()*n)];
+      $("#luckyEmoji").textContent=emojiOf(pick);
+      $("#luckyName").textContent="就吃「"+pick.name+"」！";
+      toast("就决定是你了："+pick.name);
+    }
+  },80);
+};
+
+function renderToday(){
+  const orders=(state.orders[todayKey()]||[]);
+  const byDish={};
+  orders.forEach(o=>{ (byDish[o.dishId]=byDish[o.dishId]||[]).push(o); });
+  const rows=Object.entries(byDish).map(([id,recs])=>{
+    const d=dishById(id); if(!d) return "";
+    return `<div class="sum-row"><div class="sum-left"><span class="em">${emojiOf(d)}</span><span>${d.name}</span></div>
+      <div class="chips">${recs.map(o=>`<span class="chip" ${o.note?`title="忌口：${o.note}"`:""}>${o.user}${o.note?(" · ⚠️"+o.note):""}</span>`).join("")}</div></div>`;
+  }).join("");
+  $("#summary").innerHTML = rows || `<div class="empty">还没有人点菜，快去「🥢 点菜」吧</div>`;
+  renderLuckyScope();
+  const pool = luckyPool();
+  $("#luckyRange").textContent = `本次从 ${pool.length} 道${luckyScope==="meat" && pool.length ? "荤" : ""}菜中抽取`;
+}
+
+/* ================= 点菜页（家人） ================= */
+function renderWho(){
+  const el=$("#whoList");
+  el.innerHTML = state.users.map(u=>`<button class="who ${u===me?"on":""}" data-u="${u}">${u}</button>`).join("");
+  el.querySelectorAll(".who").forEach(b=>b.onclick=()=>{
+    me=b.dataset.u; setSavedMe(me); renderWho();
+    toast("切换为「"+me+"」");
+  });
+  $("#pickMeHint").style.display = (!me && mode==="daily") ? "" : "none";
+}
+$("#addWhoBtn").onclick = async ()=>{
+  const name=prompt("家人怎么称呼？"); if(!name) return;
+  await fetch(API_BASE+"/api/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim()})});
+  await load();
+  me=name.trim(); setSavedMe(me); renderWho();
+};
+
+function renderGrid(){
+  const isParty = mode==="party";
+  // 不再要求先选身份：菜单始终直接展示，未选身份时在点菜弹层里选择
+  let html="";
+  const grouped = {};
+  state.dishes.forEach(d=>{ (grouped[d.protein||"其他"]=grouped[d.protein||"其他"]||[]).push(d); });
+  PROTEINS.forEach(p=>{
+    const list=grouped[p]; if(!list||!list.length) return;
+    html+=`<div class="cat-title">${PROTEIN_EMOJI[p]} ${p} <span class="cnt">· ${list.length} 道</span></div><div class="grid">`;
+    list.forEach(d=>{
+      const picked = me && pickedUsers(d.id).includes(me);
+      const others = me ? pickedUsers(d.id).filter(u=>u!==me) : pickedUsers(d.id);
+      const ig=igList(d);
+      const pic = d.image ? `<img class="pic" src="${imgSrc(d)}" alt="${d.name}">`
+                          : `<div class="pic-wrap"><span class="em">${emojiOf(d)}</span></div>`;
+      html+=`<div class="dish ${picked?"picked":""}" data-id="${d.id}">
+        ${pic}<div class="nm">${d.name}</div>
+        <div class="ig">${ig.length?("🧺 "+ig.slice(0,3).join(" · ")+(ig.length>3?" …":"")):"&nbsp;"}</div>
+        ${others.length?`<div class="my-badge">💭 ${others.join("、")}想吃</div>`:""}
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  $("#dishGrid").innerHTML=html || `<div class="card"><div class="empty">${isParty?"宴请菜单暂空，等主人发布":"菜单是空的，等主人加菜吧"}</div></div>`;
+  $("#dishGrid").querySelectorAll(".dish").forEach(el=>el.onclick=()=>openSheet(el.dataset.id));
+}
+
+/* ================= 详情弹层 ================= */
+function openSheet(id){
+  const d=dishById(id); if(!d) return;
+  sheetDishId=id; fillSheet(d);
+  $("#mask").classList.add("show"); $("#sheet").classList.add("show");
+}
+function fillSheet(d){
+  $("#sheetHero").innerHTML = d.image ? `<img src="${imgSrc(d)}" alt="${d.name}">` : `<span class="em">${emojiOf(d)}</span>`;
+  $("#sheetName").textContent=d.name;
+  $("#sheetMeta").textContent=`${PROTEIN_EMOJI[d.protein||"其他"]||"🍽️"} ${d.protein||"其他"}${d.note?(" · "+d.note):""}`;
+  const ig=igList(d);
+  $("#sheetIgWrap").style.display = ig.length ? "" : "none";
+  $("#sheetIgChips").innerHTML = ig.map(x=>`<span class="ig-chip">${x}</span>`).join("");
+  const recs=usersWithNotes(d.id);
+  $("#sheetWant").innerHTML = recs.length
+    ? `💭 想吃这道菜的：` + recs.map(o=>`${o.user}${o.note?`<span class="chip" style="margin-left:4px">忌口：${o.note}</span>`:""}`).join("、")
+    : `还没有人想吃「${d.name}」`;
+  const btn=$("#orderBtn"), noteIn=$("#orderNote"), whoWrap=$("#sheetWho");
+  const myRec = recs.find(o=>o.user===me);
+  noteIn.value = myRec ? (myRec.note||"") : "";
+  if(!me && mode==="daily"){
+    // 未选身份：弹层内直接选，选完立即可点
+    whoWrap.style.display="";
+    whoWrap.innerHTML = `<div style="font-size:13px;color:var(--sub);margin-top:12px">先选一下你是谁：</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">`+
+      state.users.map(u=>`<button class="who" data-u="${u}">${u}</button>`).join("")+`</div>`;
+    whoWrap.querySelectorAll(".who").forEach(b=>b.onclick=()=>{
+      me=b.dataset.u; setSavedMe(me); renderWho(); renderGrid();
+      fillSheet(d); toast("你好，「"+me+"」，现在可以点菜了 🥢");
+    });
+    btn.style.display="none"; noteIn.style.display="none";
+    return;
+  }
+  whoWrap.style.display="none"; btn.style.display="";
+  noteIn.style.display = me ? "" : "none";
+  if(!me){ btn.textContent="先在上方写下你的称呼"; btn.disabled=true; btn.classList.remove("on"); }
+  else if(myRec){ btn.textContent="✓ 已点（可改备注）"; btn.disabled=false; btn.classList.add("on"); }
+  else { btn.textContent="🥢 我想吃这个"; btn.disabled=false; btn.classList.remove("on"); }
+}
+function closeSheet(){ sheetDishId=null; $("#mask").classList.remove("show"); $("#sheet").classList.remove("show"); }
+$("#mask").onclick=closeSheet;
+$("#sheetClose").onclick=closeSheet;
+$("#orderBtn").onclick=async ()=>{
+  if(!me || !sheetDishId) return;
+  const recs=usersWithNotes(sheetDishId), d=dishById(sheetDishId);
+  const myRec=recs.find(o=>o.user===me);
+  const note=($("#orderNote").value||"").trim();
+  const isParty = mode==="party";
+  const postUrl = API_BASE + (isParty ? `/api/party/${partyToken}/order` : "/api/order");
+  const delUrl  = API_BASE + (isParty ? `/api/party/${partyToken}/order` : "/api/order");
+  const H={"Content-Type":"application/json"};
+  if(myRec){
+    if(note !== (myRec.note||"")){
+      await fetch(`${delUrl}?user=${encodeURIComponent(me)}&dishId=${sheetDishId}`,{method:"DELETE"});
+      await fetch(postUrl,{method:"POST",headers:H,body:JSON.stringify({user:me,dishId:sheetDishId,note})});
+      toast(`已更新「${d.name}」的忌口备注 ✓`);
+    }else{
+      await fetch(`${delUrl}?user=${encodeURIComponent(me)}&dishId=${sheetDishId}`,{method:"DELETE"});
+      toast("已取消「"+d.name+"」");
+    }
+  }else{
+    await fetch(postUrl,{method:"POST",headers:H,body:JSON.stringify({user:me,dishId:sheetDishId,note})});
+    toast(`已为 ${me} 点了「${d.name}」${note?("（"+note+"）"):""}`);
+  }
+  await load();
+};
+
+/* ================= 愿望 ================= */
+function renderWishes(){
+  const ws=state.wishes||[];
+  $("#wishList").innerHTML = ws.map(w=>`<div class="wish-row">🕯️ <b>${w.name}</b>${w.by?`<span style="color:var(--sub);font-size:12px">${w.by}想吃</span>`:""}</div>`).join("")
+    || `<div class="empty">还没有愿望</div>`;
+}
+$("#wishBtn").onclick=async ()=>{
+  if(!me){ toast("先选一下「我是谁」再许愿"); return; }
+  const name=prompt("想吃啥？写下菜名（菜单里没有的）");
+  if(!name) return;
+  const r=await fetch(API_BASE+"/api/wish",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:name.trim(),by:me})});
+  if(r.ok){ toast("愿望已许下，主人会看到 🕯️"); load(); }
+};
+
+/* ================= 主人管理 ================= */
+let adminData=null;
+function fillProteinSelect(sel, val){
+  sel.innerHTML = PROTEINS.map(p=>`<option ${p===val?"selected":""}>${p}</option>`).join("");
+}
+$("#adminBtn").onclick=async ()=>{
+  const meta=await (await fetch(API_BASE+"/api/meta")).json();
+  let pwd;
+  if(!meta.has_password){
+    pwd=prompt("首次设置管理密码（之后你就是唯一的主人）\n请输入 2-20 位密码：");
+    if(!pwd) return;
+    const pwd2=prompt("再输入一次确认：");
+    if(pwd!==pwd2){ toast("两次输入不一致"); return; }
+    const r=await fetch(API_BASE+"/api/admin/setpass",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:pwd})});
+    if(!r.ok){ toast("设置失败："+((await r.json()).detail||"")); return; }
+    adminPass=pwd; localStorage.setItem("km_admin_pass",pwd);
+    toast("管理密码已设置，欢迎主人 👑");
+    await becomeAdmin();
+  }else{
+    pwd=prompt("请输入管理密码：");
+    if(pwd===null) return;
+    const r=await fetch(API_BASE+"/api/admin/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:pwd})});
+    if(!r.ok){ toast("管理密码错误"); return; }
+    adminPass=pwd; localStorage.setItem("km_admin_pass",pwd);
+    await becomeAdmin();
+  }
+};
+function logoutAdmin(){
+  isAdmin=false; adminPass=""; localStorage.removeItem("km_admin_pass");
+  $("#tabManage").style.display="none";
+  document.querySelector('[data-p="p-today"]').onclick();
+}
+async function becomeAdmin(){
+  isAdmin=true;
+  $("#tabManage").style.display="";
+  document.querySelector('[data-p="p-manage"]').onclick();
+  await refreshAdmin();
+}
+$("#chpassBtn").onclick=async ()=>{
+  const old=prompt("当前管理密码（首次设置后修改需填）：")||"";
+  const np=prompt("新密码（2-20 位）：");
+  if(!np) return;
+  const r=await fetch(API_BASE+"/api/admin/setpass",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:np,old})});
+  if(!r.ok){ toast("修改失败："+((await r.json()).detail||"")); return; }
+  adminPass=np; localStorage.setItem("km_admin_pass",np);
+  toast("管理密码已更新 ✓");
+};
+
+async function refreshAdmin(){
+  if(!await loadAdminState()) return;
+  renderAdmin();
+}
+function renderAdmin(){
+  // 愿望清单
+  const ws=adminData.wishes||[];
+  $("#adminWishes").innerHTML = ws.map(w=>`<div class="wish-row">
+      <span style="flex:1;min-width:0"><b>${w.name}</b>${w.by?`<span style="color:var(--sub);font-size:12px"> · ${w.by}想吃</span>`:""}</span>
+      <button class="btn ghost small" data-conv="${w.id}">加入菜单</button>
+      <button class="del" data-dismiss="${w.id}">忽略</button>
+    </div>`).join("") || `<div class="empty">暂时没有愿望</div>`;
+  $("#adminWishes").querySelectorAll("[data-conv]").forEach(b=>b.onclick=async ()=>{
+    const w=ws.find(x=>x.id===b.dataset.conv);
+    const protein=prompt(`「${w.name}」的主要食材是？\n可选：${PROTEINS.join("、")}`, "其他")||"其他";
+    const r=await fetch(API_BASE+`/api/admin/wish/${w.id}/convert`,{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Pass":adminPass},body:JSON.stringify({protein})});
+    if(r.ok){ toast(`「${w.name}」已加入菜单 ✓`); await refreshAdmin(); load(); }
+    else toast((await r.json()).detail||"操作失败");
+  });
+  $("#adminWishes").querySelectorAll("[data-dismiss]").forEach(b=>b.onclick=async ()=>{
+    await fetch(API_BASE+"/api/admin/wish/"+b.dataset.dismiss,{method:"DELETE",headers:{"X-Admin-Pass":adminPass}});
+    await refreshAdmin();
+  });
+
+  // 宴请
+  const ps=adminData.parties||[];
+  $("#partyList").innerHTML = ps.map(p=>{
+    const link=location.origin+"/?party="+p.token;
+    const cnt=p.orders.length;
+    const status=p.active?`<span class="chip">生效中 · 至 ${p.expires}</span>`:`<span class="chip" style="background:#eee;color:#888">已结束</span>`;
+    return `<div style="padding:10px 0;border-bottom:1px dashed var(--line)">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>${p.name}</b>${status}</div>
+      <div class="party-link" style="margin:8px 0">${link}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost small" data-copy="${p.id}">复制链接</button>
+        <button class="btn ghost small" data-orders="${p.id}">看点单(${cnt})</button>
+        ${p.active?`<button class="del" data-close="${p.id}">作废</button>`:`<button class="btn ghost small" data-extend="${p.id}">再开3天</button>`}
+      </div>
+      <div id="po-${p.id}" style="display:none;margin-top:8px"></div>
+    </div>`;
+  }).join("") || `<div class="empty">还没有发起过宴请</div>`;
+  $("#partyList").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{
+    const p=ps.find(x=>x.id===b.dataset.copy);
+    const link=location.origin+"/?party="+p.token;
+    if(navigator.clipboard) navigator.clipboard.writeText(link).then(()=>toast("链接已复制 ✓"),()=>prompt("手动复制：",link));
+    else prompt("手动复制：",link);
+  });
+  $("#partyList").querySelectorAll("[data-orders]").forEach(b=>b.onclick=()=>{
+    const p=ps.find(x=>x.id===b.dataset.orders);
+    const el=$("#po-"+p.id);
+    if(el.style.display!=="none"){ el.style.display="none"; return; }
+    const by={}; p.orders.forEach(o=>{ (by[o.user]=by[o.user]||[]).push(dishName(o.dishId)+(o.note?`(⚠️${o.note})`:"")); });
+    el.innerHTML = Object.entries(by).map(([u,ds])=>`<div style="font-size:13px"><b>${u}</b>：${ds.join("、")}</div>`).join("") || `<div class="empty">还没人点</div>`;
+    el.style.display="";
+  });
+  $("#partyList").querySelectorAll("[data-close]").forEach(b=>b.onclick=async ()=>{
+    if(!confirm("作废后该链接立即失效，客人无法再访问。确定？")) return;
+    await fetch(API_BASE+"/api/admin/party/"+b.dataset.close+"/close",{method:"POST",headers:{"X-Admin-Pass":adminPass}});
+    toast("宴请链接已作废"); refreshAdmin();
+  });
+  $("#partyList").querySelectorAll("[data-extend]").forEach(b=>b.onclick=async ()=>{
+    await fetch(API_BASE+"/api/admin/party/"+b.dataset.extend+"/extend",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Pass":adminPass},body:JSON.stringify({days:3})});
+    toast("已重新生效 3 天"); refreshAdmin();
+  });
+  // 菜品勾选列表
+  $("#partyDishList").innerHTML = state.dishes.map(d=>`<label><input type="checkbox" value="${d.id}"> ${d.name}</label>`).join("") || `<div class="empty">菜单为空</div>`;
+  // 菜品管理列表（按主料分组，含编辑/删除）
+  renderManage();
+}
+function dishName(id){ const d=dishById(id); return d?d.name:"?"; }
+
+$("#createPartyBtn").onclick=async ()=>{
+  const name=$("#pName").value.trim()||"家庭宴请";
+  const days=parseInt($("#pDays").value)||3;
+  const ids=[...$("#partyDishList").querySelectorAll("input:checked")].map(x=>x.value);
+  const r=await fetch(API_BASE+"/api/admin/party",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Pass":adminPass},body:JSON.stringify({name,days,dishIds:ids})});
+  if(!r.ok){ toast("创建失败："+((await r.json()).detail||"")); return; }
+  const j=await r.json();
+  const link=location.origin+"/?party="+j.party.token;
+  $("#pName").value="";
+  if(navigator.clipboard) navigator.clipboard.writeText(link).catch(()=>{});
+  toast("宴请链接已生成并复制 ✓ 有效期至 "+j.party.expires);
+  prompt("宴请链接（已复制，发到客人群里）：", link);
+  refreshAdmin();
+};
+
+/* ---- 图片上传 ---- */
+function resizeToDataUrl(file, maxSide=900, quality=0.8){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        const s=Math.min(1, maxSide/Math.max(w,h));
+        const c=document.createElement("canvas");
+        c.width=Math.round(w*s); c.height=Math.round(h*s);
+        c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+        res(c.toDataURL("image/jpeg",quality));
+      };
+      img.onerror=()=>rej(new Error("图片解码失败"));
+      img.src=r.result;
+    };
+    r.onerror=()=>rej(new Error("文件读取失败"));
+    r.readAsDataURL(file);
+  });
+}
+function readAsDataURL(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result); r.onerror=()=>rej(new Error("文件读取失败"));
+    r.readAsDataURL(file);
+  });
+}
+async function fileToDataUrl(file){
+  try{ return await resizeToDataUrl(file); }
+  catch(e){
+    if(file.size <= 2.5*1024*1024) return await readAsDataURL(file);
+    throw new Error("图片解码失败且文件偏大，请用 JPG/PNG，或手机相机格式改为「兼容性最好」");
+  }
+}
+$("#pickImgBtn").onclick=()=>$("#fileInput").click();
+$("#clearImgBtn").onclick=()=>{ formImage=""; updateImgThumb(); };
+$("#fileInput").onchange=async ()=>{
+  const f=$("#fileInput").files[0];
+  if(!f) return;
+  toast("正在处理图片…");
+  try{
+    const dataUrl=await fileToDataUrl(f);
+    const r=await fetch(API_BASE+"/api/upload",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Pass":adminPass},body:JSON.stringify({dataUrl})});
+    if(!r.ok){ let msg="上传失败("+r.status+")"; try{ msg=(await r.json()).detail||msg; }catch(e){} throw new Error(msg); }
+    formImage=(await r.json()).path;
+    updateImgThumb(); toast("图片已就绪 ✓");
+  }catch(e){
+    toast(String(e&&e.message||e));
+  }
+  $("#fileInput").value="";
+};
+function updateImgThumb(){
+  $("#imgThumb").innerHTML = formImage ? `<img src="${API_BASE}/${formImage}" style="width:100%;height:100%;object-fit:cover">` : "📷";
+  $("#clearImgBtn").style.display = formImage ? "" : "none";
+}
+
+/* ---- 菜品管理 ---- */
+function renderManage(){
+  const grouped={};
+  state.dishes.forEach(d=>{ (grouped[d.protein||"其他"]=grouped[d.protein||"其他"]||[]).push(d); });
+  let html="";
+  PROTEINS.forEach(p=>{
+    const list=grouped[p]; if(!list||!list.length) return;
+    html+=`<div class="cat-title">${PROTEIN_EMOJI[p]} ${p} <span class="cnt">· ${list.length} 道</span></div>`;
+    list.forEach(d=>{
+      const thumb=d.image?`<img class="mg-thumb" src="${imgSrc(d)}">`:`<span class="em">${emojiOf(d)}</span>`;
+      html+=`<div class="mg-row">${thumb}
+        <div class="info"><div class="nm">${d.name}</div>
+        <div class="meta">${d.note||""}${igList(d).length?" · 食材 "+igList(d).length+" 种":""}</div></div>
+        <button class="edit" data-id="${d.id}">编辑</button>
+        <button class="del" data-id="${d.id}">删除</button></div>`;
+    });
+  });
+  $("#manageList").innerHTML=html || `<div class="empty">还没有菜，先加一道吧</div>`;
+  $("#manageList").querySelectorAll(".del").forEach(b=>b.onclick=async ()=>{
+    if(!confirm("确定删除这道菜？（会一起删除它的图片）")) return;
+    await fetch(API_BASE+"/api/dishes/"+b.dataset.id,{method:"DELETE",headers:{"X-Admin-Pass":adminPass}});
+    if(editingId===b.dataset.id) resetForm();
+    refreshAdmin(); load(); toast("已删除");
+  });
+  $("#manageList").querySelectorAll(".edit").forEach(b=>b.onclick=()=>{
+    const d=dishById(b.dataset.id); if(!d) return;
+    editingId=d.id; formImage=d.image||"";
+    $("#fEmoji").value=d.emoji||""; $("#fName").value=d.name;
+    fillProteinSelect($("#fProtein"),d.protein||"其他");
+    $("#fNote").value=d.note||""; $("#fIngredients").value=d.ingredients||"";
+    $("#formTitle").textContent="✏️ 编辑「"+d.name+"」";
+    $("#addDishBtn").textContent="保存修改";
+    $("#cancelEditBtn").style.display="";
+    updateImgThumb();
+    document.querySelector("#p-manage .card").scrollIntoView({behavior:"smooth"});
+  });
+}
+function resetForm(){
+  editingId=null; formImage="";
+  $("#fEmoji").value=""; $("#fName").value=""; $("#fNote").value=""; $("#fIngredients").value="";
+  fillProteinSelect($("#fProtein"),"其他");
+  $("#formTitle").textContent="➕ 添加新菜";
+  $("#addDishBtn").textContent="加入菜单";
+  $("#cancelEditBtn").style.display="none";
+  updateImgThumb();
+}
+$("#cancelEditBtn").onclick=resetForm;
+$("#addDishBtn").onclick=async ()=>{
+  const name=$("#fName").value.trim();
+  if(!name){ toast("先写个菜名呀"); return; }
+  const body=JSON.stringify({name,protein:$("#fProtein").value,emoji:$("#fEmoji").value.trim(),
+    note:$("#fNote").value.trim(),ingredients:$("#fIngredients").value.trim(),image:formImage});
+  const H={"Content-Type":"application/json","X-Admin-Pass":adminPass};
+  if(editingId){
+    const r=await fetch(API_BASE+"/api/dishes/"+editingId,{method:"PUT",headers:H,body});
+    if(!r.ok){ toast("保存失败："+((await r.json()).detail||"")); return; }
+    toast("「"+name+"」已更新"); resetForm();
+  }else{
+    const r=await fetch(API_BASE+"/api/dishes",{method:"POST",headers:H,body});
+    if(!r.ok){ toast("添加失败："+((await r.json()).detail||"")); return; }
+    toast("「"+name+"」已加入菜单");
+    $("#fName").value=""; $("#fNote").value=""; $("#fIngredients").value=""; formImage="";
+  }
+  await refreshAdmin(); await load();
+};
+
+$("#resetBtn").onclick=async ()=>{
+  if(!confirm("确定清空今天的所有点菜记录？")) return;
+  await fetch(API_BASE+"/api/reset-today",{method:"POST",headers:{"X-Admin-Pass":adminPass}});
+  toast("已清空"); load();
+};
+
+/* ================= 启动 ================= */
+document.querySelectorAll("#tabsBar .tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll("#tabsBar .tab").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on"); $("#"+t.dataset.p).classList.add("on");
+  if(t.dataset.p==="p-manage") refreshAdmin();
+  window.scrollTo(0,0);
+});
+
+(async function boot(){
+  // 菜单库容器（renderManage 使用）
+  const ml=document.createElement("div"); ml.className="card"; ml.id="manageList";
+  $("#p-manage").appendChild(ml);
+  fillProteinSelect($("#fProtein"),"其他");
+  updateImgThumb();
+  if(await initParty()) return;   // 宴请链接模式
+  // 恢复主人身份
+  if(adminPass){
+    try{
+      const r=await fetch(API_BASE+"/api/admin/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:adminPass})});
+      if(r.ok){
+        const j=await r.json();
+        if(!j.need_setup){ isAdmin=true; $("#tabManage").style.display=""; }
+        else localStorage.removeItem("km_admin_pass");
+      }else localStorage.removeItem("km_admin_pass");
+    }catch(e){}
+  }
+  await load();
+})();
+// 每 15 秒自动刷新
+setInterval(()=>{ if(document.visibilityState==="visible") load(); },15000);
+</script>
+</body>
+</html>
