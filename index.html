@@ -660,7 +660,7 @@ function renderAdmin(){
   // 宴请
   const ps=adminData.parties||[];
   $("#partyList").innerHTML = ps.map(p=>{
-    const link=location.origin+"/?party="+p.token;
+    const link=location.origin+location.pathname+"?party="+p.token;
     const cnt=p.orders.length;
     const status=p.active?`<span class="chip">生效中 · 至 ${p.expires}</span>`:`<span class="chip" style="background:#eee;color:#888">已结束</span>`;
     return `<div style="padding:10px 0;border-bottom:1px dashed var(--line)">
@@ -676,7 +676,7 @@ function renderAdmin(){
   }).join("") || `<div class="empty">还没有发起过宴请</div>`;
   $("#partyList").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{
     const p=ps.find(x=>x.id===b.dataset.copy);
-    const link=location.origin+"/?party="+p.token;
+    const link=location.origin+location.pathname+"?party="+p.token;
     if(navigator.clipboard) navigator.clipboard.writeText(link).then(()=>toast("链接已复制 ✓"),()=>prompt("手动复制：",link));
     else prompt("手动复制：",link);
   });
@@ -711,7 +711,7 @@ $("#createPartyBtn").onclick=async ()=>{
   const r=await fetch(API_BASE+"/api/admin/party",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Pass":adminPass},body:JSON.stringify({name,days,dishIds:ids})});
   if(!r.ok){ toast("创建失败："+((await r.json()).detail||"")); return; }
   const j=await r.json();
-  const link=location.origin+"/?party="+j.party.token;
+  const link=location.origin+location.pathname+"?party="+j.party.token;
   $("#pName").value="";
   if(navigator.clipboard) navigator.clipboard.writeText(link).catch(()=>{});
   toast("宴请链接已生成并复制 ✓ 有效期至 "+j.party.expires);
