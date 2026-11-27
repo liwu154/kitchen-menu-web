@@ -258,6 +258,9 @@
 <script>
 // API 基址：网页托管在 GitHub Pages 等静态平台时，接口指向阿里云函数计算
 const API_BASE = location.hostname.indexOf("fcapp.run") >= 0 ? "" : "https://kitchenmenu-dlcwqxccic.cn-hangzhou.fcapp.run";
+// 菜品图片走 GitHub Pages CDN（快）；加载失败自动回退阿里云接口
+const IMG_BASE = "https://liwu154.github.io/kitchen-menu-web";
+function imgFallback(el, path){ el.onerror=null; if(path) el.src = API_BASE+"/"+path; }
 const PROTEINS = ["猪肉","牛肉","鸡肉","鱼虾","蔬菜","凉菜","主食","汤品","其他"];
 const PROTEIN_EMOJI = {"猪肉":"🐷","牛肉":"🐄","鸡肉":"🐔","鱼虾":"🐟","蔬菜":"🥬","凉菜":"🥗","主食":"🍚","汤品":"🍲","其他":"🍽️"};
 let state = {dishes:[],users:[],orders:{},wishes:[]};
@@ -286,7 +289,7 @@ const $ = s => document.querySelector(s);
 const todayKey = () => { const d=new Date(), p=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); };
 const emojiFallback = ["🍲","🥘","🍚","🍜","🐟","🥗","🍤","🍳","🥟","🍛"];
 function emojiOf(d){ return d.emoji || emojiFallback[d.name.length % emojiFallback.length]; }
-function imgSrc(d){ return d.image ? (API_BASE+"/"+d.image) : ""; }
+function imgSrc(d){ return d.image ? (IMG_BASE+"/"+d.image) : ""; }
 function dishById(id){ return state.dishes.find(x=>x.id===id); }
 function igList(d){ return (d.ingredients||"").split(/[、,，;；\s]+/).filter(Boolean); }
 function orderRecords(){ return mode==="daily" ? (state.orders[todayKey()]||[]) : (partyInfo ? partyInfo.orders : []); }
@@ -490,7 +493,7 @@ function renderGrid(){
       const picked = me && pickedUsers(d.id).includes(me);
       const others = me ? pickedUsers(d.id).filter(u=>u!==me) : pickedUsers(d.id);
       const ig=igList(d);
-      const pic = d.image ? `<img class="pic" src="${imgSrc(d)}" alt="${d.name}">`
+      const pic = d.image ? `<img class="pic" src="${imgSrc(d)}" alt="${d.name}" loading="lazy" decoding="async" onerror="imgFallback(this,'${d.image}')">`
                           : `<div class="pic-wrap"><span class="em">${emojiOf(d)}</span></div>`;
       html+=`<div class="dish ${picked?"picked":""}" data-id="${d.id}">
         ${pic}<div class="nm">${d.name}</div>
@@ -511,7 +514,7 @@ function openSheet(id){
   $("#mask").classList.add("show"); $("#sheet").classList.add("show");
 }
 function fillSheet(d){
-  $("#sheetHero").innerHTML = d.image ? `<img src="${imgSrc(d)}" alt="${d.name}">` : `<span class="em">${emojiOf(d)}</span>`;
+  $("#sheetHero").innerHTML = d.image ? `<img src="${imgSrc(d)}" alt="${d.name}" loading="lazy" decoding="async" onerror="imgFallback(this,'${d.image}')">` : `<span class="em">${emojiOf(d)}</span>`;
   $("#sheetName").textContent=d.name;
   $("#sheetMeta").textContent=`${PROTEIN_EMOJI[d.protein||"其他"]||"🍽️"} ${d.protein||"其他"}${d.note?(" · "+d.note):""}`;
   const ig=igList(d);
@@ -772,7 +775,7 @@ $("#fileInput").onchange=async ()=>{
   $("#fileInput").value="";
 };
 function updateImgThumb(){
-  $("#imgThumb").innerHTML = formImage ? `<img src="${API_BASE}/${formImage}" style="width:100%;height:100%;object-fit:cover">` : "📷";
+  $("#imgThumb").innerHTML = formImage ? `<img src="${IMG_BASE}/${formImage}" onerror="imgFallback(this,'${formImage}')" style="width:100%;height:100%;object-fit:cover">` : "📷";
   $("#clearImgBtn").style.display = formImage ? "" : "none";
 }
 
@@ -785,7 +788,7 @@ function renderManage(){
     const list=grouped[p]; if(!list||!list.length) return;
     html+=`<div class="cat-title">${PROTEIN_EMOJI[p]} ${p} <span class="cnt">· ${list.length} 道</span></div>`;
     list.forEach(d=>{
-      const thumb=d.image?`<img class="mg-thumb" src="${imgSrc(d)}">`:`<span class="em">${emojiOf(d)}</span>`;
+      const thumb=d.image?`<img class="mg-thumb" src="${imgSrc(d)}" loading="lazy" decoding="async" onerror="imgFallback(this,'${d.image}')">`:`<span class="em">${emojiOf(d)}</span>`;
       html+=`<div class="mg-row">${thumb}
         <div class="info"><div class="nm">${d.name}</div>
         <div class="meta">${d.note||""}${igList(d).length?" · 食材 "+igList(d).length+" 种":""}</div></div>
